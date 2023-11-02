@@ -4,17 +4,17 @@ Automeris io genome assembly and annotation
 #!/bin/bash 
 #SBATCH --job-name=Automeris_io__assembly_hifiasm 
 #SBATCH -o %A_%a.8822_Automeris_record_assembly.out 
-#SBATCH --mail-user=chelseaskoj@ufl.edu
+#SBATCH --mail-user=
 #SBATCH --mail-type=FAIL,END 
 #SBATCH -c 30 
 #SBATCH --mem-per-cpu=5gb 
 #SBATCH -t 30:00:00 
-#SBATCH --account=kawahara 
-#SBATCH --qos=kawahara
+#SBATCH --account=
+#SBATCH --qos=
 date;hostname;pwd 
 module load ufrc 
 module load hifiasm
-hifiasm -o /blue/kawahara/chelseaskoj/Genome_Automeris/Genome_Automeris_1stassembly.asm -l 3 -t 30 /blue/kawahara/chelseaskoj/Genome_Automeris/Automeris_pacbio/NS2800/outputs/m64219e_220702_224701.hifi_reads.fastq.gz
+hifiasm -o /Genome_Automeris_1stassembly.asm -l 3 -t 30 /m64219e_220702_224701.hifi_reads.fastq.gz
 
 
 ######## Assembly Python
@@ -128,18 +128,18 @@ if __name__ == "__main__":
 #SBATCH --job-name=Automeris_kmer23 
 #SBATCH -o Automeris_kmer23_%j.out 
 #SBATCH --mail-type=FAIL,END 
-#SBATCH --mail-user=chelseaskoj@ufl.edu
+#SBATCH --mail-user=
 #SBATCH -c 3 
 #SBATCH --mem-per-cpu=4gb 
 #SBATCH -t 00:30:00 
-#SBATCH --account=kawahara 
-#SBATCH --qos=kawahara
+#SBATCH --account=
+#SBATCH --qos=
 
 module load kmc/3.2.1
 # create directory for kmc temporary files
 mkdir kmc_tmp
 
-kmc -k23 /blue/kawahara/chelseaskoj/Genome_Automeris/Automeris_pacbio/NS2800/outputs/m64219e_220702_224701.hifi_reads.fastq.gz 23xmers kmc_tmp
+kmc -k23 /m64219e_220702_224701.hifi_reads.fastq.gz 23xmers kmc_tmp
 
 # Having the k-mers counted it is possible to dump KMC binary database to textual form with kmc_tools.
 kmc_tools transform 21mers dump 23mers.txt 
@@ -148,7 +148,16 @@ kmc_tools transform 21mers histogram 23mer_reads.histo
 
 #### BUSCO
 
+export BUSCO_CONFIG_FILE=/config.ini
+export AUGUSTUS_CONFIG_PATH=/
 
+echo $BUSCO_CONFIG_FILE
+
+module load busco/5.2.0
+
+busco -f -i / myfile.asm.bp.p_ctg.fa \
+ -o busco_out_myfile -l /data/reference/busco/v5/lineages/lepidoptera_odb10        \
+ -m genome -c 6 --augustus
 
 
 
@@ -158,7 +167,7 @@ kmc_tools transform 21mers histogram 23mer_reads.histo
 #SBATCH --job-name=HapPur_s1_Aut
 #SBATCH -o Aut_happurge_s1.out
 #SBATCH --mail-type=FAIL,END
-#SBATCH --mail-user=chelseaskoj@ufl.edu
+#SBATCH --mail-user=     
 #SBATCH --mem-per-cpu=4gb
 #SBATCH -t 13:00:00
 #SBATCH -c 4
@@ -169,8 +178,8 @@ module load purge_haplotigs/1.1.2
 module load libssl/1.0.2l
 
 purge_haplotigs hist  \
--b /blue/kawahara/chelseaskoj/Genome_Automeris/Automeris_purge1017.aln.bam \
--g /blue/kawahara/chelseaskoj/Genome_Automeris/Automeris_assembly_purge.fasta
+-b /Automeris_purge1017.aln.bam \
+-g /Genome_Automeris/Automeris_assembly_purge.fasta
 
 
 
@@ -180,19 +189,19 @@ purge_haplotigs hist  \
 #SBATCH --job-name=Autom_purge_s2
 #SBATCH -o Autom_s2_purge_cut.log
 #SBATCH --mail-type=FAIL,END
-#SBATCH --mail-user=chelseaksoj@ufl.edu
+#SBATCH --mail-user=  
 #SBATCH --mem-per-cpu=2gb
 #SBATCH -t 1:00:00
 #SBATCH -c 4
-#SBATCH --account=kawahara
-#SBATCH --qos=kawahara-b
+#SBATCH --account= 
+#SBATCH --qos= -b
 
 module load samtools/1.15
 module load purge_haplotigs/1.1.2
 module load libssl/1.0.2l
 
 purge_haplotigs cov \
--i /blue/kawahara/chelseaskoj/Genome_Automeris/Automeris.aln.sorted.bam.gencov    \
+-i /Automeris.aln.sorted.bam.gencov    \
 -l 5  \
 -m 18  \
 -h 75  \
@@ -205,12 +214,12 @@ purge_haplotigs cov \
 #SBATCH --job-name=Autom_s3_purge_
 #SBATCH -o Autom_purge1024_haplotigs.log
 #SBATCH --mail-type=FAIL,END
-#SBATCH --mail-user=chelseaskoj@ufl.edu
+#SBATCH --mail-user=     
 #SBATCH --mem-per-cpu=8gb
 #SBATCH -t 3:00:00
 #SBATCH -c 4
-#SBATCH --account=kawahara
-#SBATCH --qos=kawahara
+#SBATCH --account= 
+#SBATCH --qos= 
 
 module load minimap/2.21
 module load bedtools/2.30.0
@@ -219,8 +228,8 @@ module load purge_haplotigs/1.1.2
 module load libssl/1.0.2l
 
 purge_haplotigs purge  \
--g /blue/kawahara/chelseaskoj/Genome_Automeris/Automeris_assembly_purge.fasta \
--c /blue/kawahara/chelseaskoj/Genome_Automeris/coverage_stats1024.csv \
+-g /Automeris_assembly_purge.fasta \
+-c /coverage_stats1024.csv \
 -o Automeris_assembly_purge2_1024
 
 
@@ -230,16 +239,16 @@ purge_haplotigs purge  \
 #SBATCH --job-name=Automeris_busco_purge_masked
 #SBATCH -o Automeris_masked_new_1128Busco.out 
 #SBATCH --mail-type=FAIL,END
-#SBATCH --mail-user=chelseaskoj@ufl.edu 
+#SBATCH --mail-user=      
 #SBATCH --mem-per-cpu=2gb 
 #SBATCH -t 3:00:00 
 #SBATCH -c 6
-#SBATCH --account=kawahara
-export BUSCO_CONFIG_FILE=/blue/kawahara/chelseaskoj/Genome_Automeris/Automeris_busco/config.ini 
-export AUGUSTUS_CONFIG_PATH=/blue/kawahara/chelseaskoj/Genome_Automeris/Automeris_busco/ 
+#SBATCH --account= 
+export BUSCO_CONFIG_FILE=/Automeris_busco/config.ini 
+export AUGUSTUS_CONFIG_PATH=/Automeris_busco
 echo $BUSCO_CONFIG_FILE 
 module load busco/5.2.0 
-busco -f -i /blue/kawahara/chelseaskoj/Genome_Automeris/Automeris_assembly_purge.fasta.masked  \
+busco -f -i /Automeris_assembly_purge.fasta.masked  \
  -o BUSCO_Automeris_masked_1128 -l /data/reference/busco/v5/lineages/lepidoptera_odb10 \
  -m genome -c 6
 
@@ -250,13 +259,13 @@ busco -f -i /blue/kawahara/chelseaskoj/Genome_Automeris/Automeris_assembly_purge
 #SBATCH --job-name=Automeris_blob
 #SBATCH --output=Automeris_blob_%j.out
 #SBATCH --mail-type=END,FAIL
-#SBATCH --mail-user=chelseaskoj@ufl.edu
+#SBATCH --mail-user=     
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=20gb
 #SBATCH --time 04:00:00
-#SBATCH --qos=kawahara
-#SBATCH --account=kawahara
+#SBATCH --qos= 
+#SBATCH --account= 
 
 pwd; hostname; date
 
@@ -278,19 +287,19 @@ blobtools plot -i Automeris_blob_result.blobDB.json
 #SBATCH --job-name=Automeris_minimap2
 #SBATCH --output=Automeris_purge1017_minimap2_%j.out
 #SBATCH --mail-type=END,FAIL
-#SBATCH --mail-user=chelseaskoj@ufl.edu
+#SBATCH --mail-user=     
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32gb
 #SBATCH --time=08:00:00
-#SBATCH --account=kawahara
-#SBATCH --qos=kawahara
+#SBATCH --account= 
+#SBATCH --qos= 
 
 pwd; hostname; date
 
 module load minimap2
 
-minimap2 -ax map-pb /blue/kawahara/chelseaskoj/Genome_Automeris/Automeris_assembly_purge.fasta /blue/kawahara/chelseaskoj/Genome_Automeris/Automeris_pacbio/NS2800/outputs/m64219e_220702_224701.hifi_reads.fastq.gz > Automeris_purge1017.sam
+minimap2 -ax map-pb /Automeris_assembly_purge.fasta/m64219e_220702_224701.hifi_reads.fastq.gz > Automeris_purge1017.sam
 
 module load samtools
 #convert SAM file to BAM file
@@ -308,18 +317,18 @@ samtools index Automeris_purge1017.aln.bam > Automeris_indexed_1017_sorted_bam
 #SBATCH --job-name=Automeris_megablast
 #SBATCH --output=Automeris_megablast_%j.out
 #SBATCH --mail-type=END,FAIL
-#SBATCH --mail-user=chelseaskoj@ufl.edu
+#SBATCH --mail-user=     
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=10
 #SBATCH --mem=30gb
 #SBATCH --time 8-00:00:00
-#SBATCH --qos=kawahara
-#SBATCH --account=kawahara
+#SBATCH --qos= 
+#SBATCH --account= 
 
 pwd; hostname; date
 
 module load ncbi_blast
-blastn -db nt -task megablast -query /blue/kawahara/chelseaskoj/Genome_Automeris/Genome_Automeris_1stassembly.asm.bp.p_ctg.fa -out Automeris_megablast.nt -evalue 1e-5 -outfmt "6 qseqid staxids bitscore sgi staxids sskingdoms sscinames" -max_target_seqs 1 -num_threads=10
+blastn -db nt -task megablast -query /Genome_Automeris_1stassembly.asm.bp.p_ctg.fa -out Automeris_megablast.nt -evalue 1e-5 -outfmt "6 qseqid staxids bitscore sgi staxids sskingdoms sscinames" -max_target_seqs 1 -num_threads=10
 
 
 ##### Annotation #####
@@ -330,19 +339,19 @@ blastn -db nt -task megablast -query /blue/kawahara/chelseaskoj/Genome_Automeris
 #SBATCH --job-name=Automeris_repeatmod
 #SBATCH -o %A_%a.Automeris_repeatmod.out
 #SBATCH --mail-type=FAIL,END
-#SBATCH --mail-user=chelseaskoj@ufl.edu
+#SBATCH --mail-user=     
 #SBATCH -c 20
 #SBATCH --mem-per-cpu=8gb
 #SBATCH -t 5-00:00:00
-#SBATCH --account=kawahara
-#SBATCH --qos=kawahara
+#SBATCH --account= 
+#SBATCH --qos= 
 
 date;hostname;pwd
 
 module load repeatmodeler/2.0
 module load seqkit/2.0.0
 
-BuildDatabase -name Automeris_io /blue/kawahara/chelseaskoj/Genome_Automeris/Automeris_assembly_purge.fasta
+BuildDatabase -name Automeris_io /Automeris_assembly_purge.fasta
 
 RepeatModeler -database Automeris_io -pa 32 -LTRStruct >& run.adp.out
 
@@ -359,19 +368,19 @@ cat Automeris_io-families.prefix.fa | seqkit fx2tab | grep "Unknown" | seqkit ta
 #!/bin/bash
 #SBATCH --job-name=rmask_Automeris_io_1121
 #SBATCH -o %A_%a.1121rm_Automeris.out
-#SBATCH --mail-user=chelseaskoj@ufl.edu
+#SBATCH --mail-user=     
 #SBATCH --mail-type=FAIL,END
 #SBATCH -c 8
 #SBATCH --mem-per-cpu=8gb
 #SBATCH -t 90:00:00
-#SBATCH --account=kawahara
-#SBATCH --qos=kawahara
+#SBATCH --account= 
+#SBATCH --qos= 
 
 date;hostname;pwd
 
 module load repeatmasker/4.1.1
 
-RepeatMasker -pa 8 -a -s -xsmall -gff -no_is -lib Automeris_io-families.fa /blue/kawahara/chelseaskoj/Genome_Automeris/Automeris_assembly_purge.fasta
+RepeatMasker -pa 8 -a -s -xsmall -gff -no_is -lib Automeris_io-families.fa /Automeris_assembly_purge.fasta
  &> RMask.Opt1_Automeris.adp.out
 
 
@@ -380,13 +389,13 @@ RepeatMasker -pa 8 -a -s -xsmall -gff -no_is -lib Automeris_io-families.fa /blue
 #!/bin/bash
 #SBATCH --job-name=%x_%jProhint_Autom
 #SBATCH --output=%xc_%j.logAutomeris
-#SBATCH --mail-user=rkeating.godfrey@ufl.edu
+#SBATCH --mail-user=rkeating.godfrey   
 #SBATCH --mail-type=FAIL,END
 #SBATCH --mem-per-cpu=4gb
 #SBATCH --time=24:00:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
-#SBATCH --qos=kawahara-b
+#SBATCH --qos= -b
 
 dates;hostname;pwd
 
@@ -405,14 +414,14 @@ prothint.py --threads ${SLURM_CPUS_ON_NODE:-1} ${genome} ${protein}
 #!/bin/bash
 #SBATCH --job-name=%j_Automeris_braker2_prot
 #SBATCH --output=%j_Automeris_braker2_prot.log
-#SBATCH --mail-user=Chelseaskoj@ufl.edu
+#SBATCH --mail-user=     
 #SBATCH --mail-type=FAIL,END
 #SBATCH --mem-per-cpu=8gb
 #SBATCH --time=48:00:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=32
-#SBATCH --account=kawahara
-#SBATCH --qos=kawahara-b 
+#SBATCH --account= 
+#SBATCH --qos= -b 
 dates;hostname;pwd
 
 genome=${1}
@@ -423,9 +432,12 @@ module load conda
 module load braker/2.1.6
 
 braker.pl \
---AUGUSTUS_CONFIG_PATH=/blue/kawahara/chelseaskoj/Genome_Automeris/Automeris_busco/Augustus/config \
+--AUGUSTUS_CONFIG_PATH=/Augustus/config \
 --genome=${genome} --species ${species} --hints=${protein_gff} --softmasking --gff3 --cores 32 --AUGUSTUS_ab_initio
 
 
 
+###Orthofinder
 
+module load orthofinder/2.5.2
+orthofinder -f folder_of_moth_peptide_files
